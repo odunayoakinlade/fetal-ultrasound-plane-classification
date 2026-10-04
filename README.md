@@ -16,40 +16,31 @@ Fetal ultrasound is a core part of antenatal care. The WHO recommends one ultras
 
 ## Dataset Overview
 
-### Target dataset (primary, preprocessed in this assignment)
+The project uses two datasets with the same anatomical plane labels. The model is pretrained on the larger source dataset and then fine-tuned on the African target dataset.
+
+### Target dataset (fine-tuning)
 
 | Item | Value |
 | --- | --- |
 | Name | *Maternal fetal ultrasound planes from low-resource imaging settings in five African countries* (Sendra-Balcells et al., 2023) |
 | Source | <https://doi.org/10.5281/zenodo.7540447> |
-| Sample size (**N**) | **450** images (one metadata row per image) |
-| Metadata columns (**P**) | **5**: `Patient_num`, `Plane`, `Train`, `Center`, `Filename` |
-| Image features | 2-D B-mode PNGs at 5 native resolutions (400–600 px wide × 400–500 px tall), with 350 grayscale and 100 RGB. Images will be resized to a common input size, so the model input dimensionality is set in the Phase 1 strategy. |
-| Target variable (**Y**) | `Plane` ∈ {Fetal abdomen, Fetal brain, Fetal femur, Fetal thorax} |
-| Grouping unit | 127 unique patient–centre combinations (`Center` + `Patient_num`; patient numbers repeat across countries) |
-| Countries | Algeria (100), Egypt (100), Malawi (100), Ghana (75), Uganda (75) |
-| Class balance | Abdomen 125 · Brain 125 · Femur 125 · Thorax 75 (Ghana and Uganda have no thorax images) |
-| Missing values | 0 in metadata; all 450 records match an image file |
+| Sample size (**N**) | 450 images |
+| Feature count (**P**) | 5 metadata columns (`Patient_num`, `Plane`, `Train`, `Center`, `Filename`), plus the ultrasound image for each row |
+| Target variable (**Y**) | `Plane`: Fetal abdomen, Fetal brain, Fetal femur or Fetal thorax |
 
 ### Source dataset (pretraining)
-
-The model is first pretrained on this larger dataset to learn general fetal ultrasound features, then fine-tuned on the African target dataset.
 
 | Item | Value |
 | --- | --- |
 | Name | *FETAL_PLANES_DB: Common maternal-fetal ultrasound images* (Burgos-Artizzu et al., 2020) |
 | Source | <https://doi.org/10.5281/zenodo.3904279> |
-| Sample size (**N**) | **12,400** images from **1,792** patients, collected at two hospitals in Barcelona, Spain |
-| Metadata columns (**P**) | **7**: `Image_name`, `Patient_num`, `Plane`, `Brain_plane`, `Operator`, `US_Machine`, `Train ` (the source CSV has a trailing space in this column name) |
-| Original labels | 6 classes: Other 4,213 · Fetal brain 3,092 · Fetal thorax 1,718 · Maternal cervix 1,626 · Fetal femur 1,040 · Fetal abdomen 711 |
-| Target variable (**Y**) after filtering | `Plane` restricted to the 4 target planes, giving **6,561** images: Brain 3,092 (47.1%) · Thorax 1,718 (26.2%) · Femur 1,040 (15.9%) · Abdomen 711 (10.8%). The imbalance ratio is about 4.3:1. |
-| Grouping unit | `Patient_num` (multiple images per patient) |
-| Acquisition variables | `US_Machine` (Voluson E6, Aloka, Voluson S10, Other) and `Operator` (Op. 1–3, Other) |
-| Missing values | 0 explicit nulls. `Other` values in `Operator` and `US_Machine` act as unrecorded or unknown categories. |
+| Sample size (**N**) | 12,400 images from 1,792 patients |
+| Feature count (**P**) | 7 metadata columns (`Image_name`, `Patient_num`, `Plane`, `Brain_plane`, `Operator`, `US_Machine`, `Train`), plus the ultrasound image for each row |
+| Target variable (**Y**) | `Plane`, limited to the same four planes as the target dataset |
 
 ## Task Type
 
-**Multi-Class Classification** (4 classes, single label per image). Both datasets share the same 4-class label space, and the source dataset's 6 classes are filtered down to the 4 shared planes before pretraining.
+**Multi-Class Classification**: each image gets exactly one of 4 labels.
 
 ## Repository Structure
 
