@@ -47,3 +47,6 @@ Thumbs.db
 
 # --- Secrets ---
 .env
+
+# --- Local working notes ---
+DATASET_NOTES.md
