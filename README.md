@@ -65,7 +65,7 @@ fetal-ultrasound-plane-classification/
 ## Reproducing the Environment
 
 ```bash
-git clone https://github.com/<your-username>/fetal-ultrasound-plane-classification.git
+git clone https://github.com/odunayoakinlade/fetal-ultrasound-plane-classification.git
 cd fetal-ultrasound-plane-classification
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
