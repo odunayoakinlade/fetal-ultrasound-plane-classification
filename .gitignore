@@ -1,0 +1,49 @@
+# --- Data: keep folder structure, ignore dataset contents ---
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+*.zip
+*.tar
+*.tar.gz
+*.tar.xz
+*.npy
+*.npz
+*.h5
+*.hdf5
+*.parquet
+*.pkl
+*.joblib
+
+# --- Model weights / checkpoints ---
+*.pt
+*.pth
+*.ckpt
+*.onnx
+models/
+checkpoints/
+
+# --- Python cache & build ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+.conda/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Secrets ---
+.env
