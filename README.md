@@ -31,13 +31,25 @@ Fetal ultrasound is a core part of antenatal care. The WHO recommends one ultras
 | Class balance | Abdomen 125 · Brain 125 · Femur 125 · Thorax 75 (Ghana and Uganda have no thorax images) |
 | Missing values | 0 in metadata; all 450 records match an image file |
 
-### Source dataset (pretraining, used in later project stages)
+### Source dataset (pretraining)
 
-*FETAL_PLANES_DB* (Burgos-Artizzu et al., 2020): 12,400 images from 1,792 patients at two hospitals in Spain. Source: <https://doi.org/10.5281/zenodo.3904279>.
+The model is first pretrained on this larger dataset to learn general fetal ultrasound features, then fine-tuned on the African target dataset.
+
+| Item | Value |
+| --- | --- |
+| Name | *FETAL_PLANES_DB: Common maternal-fetal ultrasound images* (Burgos-Artizzu et al., 2020) |
+| Source | <https://doi.org/10.5281/zenodo.3904279> |
+| Sample size (**N**) | **12,400** images from **1,792** patients, collected at two hospitals in Barcelona, Spain |
+| Metadata columns (**P**) | **7**: `Image_name`, `Patient_num`, `Plane`, `Brain_plane`, `Operator`, `US_Machine`, `Train ` (the source CSV has a trailing space in this column name) |
+| Original labels | 6 classes: Other 4,213 · Fetal brain 3,092 · Fetal thorax 1,718 · Maternal cervix 1,626 · Fetal femur 1,040 · Fetal abdomen 711 |
+| Target variable (**Y**) after filtering | `Plane` restricted to the 4 target planes, giving **6,561** images: Brain 3,092 (47.1%) · Thorax 1,718 (26.2%) · Femur 1,040 (15.9%) · Abdomen 711 (10.8%). The imbalance ratio is about 4.3:1. |
+| Grouping unit | `Patient_num` (multiple images per patient) |
+| Acquisition variables | `US_Machine` (Voluson E6, Aloka, Voluson S10, Other) and `Operator` (Op. 1–3, Other) |
+| Missing values | 0 explicit nulls. `Other` values in `Operator` and `US_Machine` act as unrecorded or unknown categories. |
 
 ## Task Type
 
-**Multi-Class Classification** (4 classes, single label per image).
+**Multi-Class Classification** (4 classes, single label per image). Both datasets share the same 4-class label space, and the source dataset's 6 classes are filtered down to the 4 shared planes before pretraining.
 
 ## Repository Structure
 
@@ -47,7 +59,9 @@ fetal-ultrasound-plane-classification/
 ├── requirements.txt           # Pinned package dependencies
 ├── README.md                  # This guide
 ├── data/
-│   ├── raw/                   # Original, unaltered dataset (not tracked in git)
+│   ├── raw/                   # Original, unaltered datasets (not tracked in git)
+│   │   ├── african_planes/    #   Target dataset (fine-tuning)
+│   │   └── fetal_planes_db/   #   Source dataset (pretraining)
 │   └── processed/             # Cleaned, encoded and scaled features (not tracked in git)
 ├── phase1_strategy/
 │   └── Phase1_Strategy_Report.pdf
@@ -74,15 +88,21 @@ pip install -r requirements.txt
 
 ### Getting the data
 
-The dataset is not committed to this repository because of its size and licensing. To set it up:
+The datasets are not committed to this repository. Together they are about 2 GB, which is over GitHub's size limits, and each one is distributed under its own Zenodo licence. To set them up:
 
-1. Download the archive from <https://doi.org/10.5281/zenodo.7540447>.
-2. Extract it into `data/raw/` so that the folder contains:
+1. Download the African dataset from <https://doi.org/10.5281/zenodo.7540447> and extract it into `data/raw/african_planes/`.
+2. Download FETAL_PLANES_DB from <https://doi.org/10.5281/zenodo.3904279> (about 2 GB) and extract it into `data/raw/fetal_planes_db/`.
+
+The resulting layout should be:
 
 ```
 data/raw/
-├── African_planes_database.csv
-├── Algeria/  ├── Egypt/  ├── Ghana/  ├── Malawi/  └── Uganda/
+├── african_planes/
+│   ├── African_planes_database.csv
+│   └── Algeria/  Egypt/  Ghana/  Malawi/  Uganda/
+└── fetal_planes_db/
+    ├── FETAL_PLANES_DB_data.csv
+    └── Images/
 ```
 
 ## Pipeline Summary
