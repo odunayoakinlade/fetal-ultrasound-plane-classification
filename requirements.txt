@@ -1,0 +1,12 @@
+numpy>=1.26
+pandas>=2.1
+scipy>=1.11
+scikit-learn>=1.4
+statsmodels>=0.14
+matplotlib>=3.8
+seaborn>=0.13
+missingno>=0.5
+pillow>=10.0
+opencv-python-headless>=4.9
+jupyter>=1.0
+ipykernel>=6.29
