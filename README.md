@@ -8,7 +8,7 @@
 
 ## Problem Statement
 
-Fetal ultrasound is a core part of antenatal care. The WHO recommends one ultrasound scan before 24 weeks of pregnancy. In much of Sub-Saharan Africa, though, there are few ultrasound specialists. Trained nurses and midwives increasingly perform point-of-care obstetric scans and often have no expert available to review an image right away. Models trained in other clinical settings also tend to generalise poorly to African data, because the ultrasound machines, acquisition practices and patient populations differ.
+Fetal ultrasound is a core part of antenatal care. The WHO recommends one ultrasound scan before 24 weeks of pregnancy. In much of Sub-Saharan Africa, though, there are few ultrasound specialists. Trained nurses and midwives increasingly perform point-of-care obstetric scans and often have no expert available to review an image right away. Models trained in other clinical settings also tend to generalise poorly to images acquired with different equipment and settings, because the ultrasound machines, acquisition practices and image quality differ.
 
 **Objective:** build a lightweight model that takes a single fetal ultrasound image and classifies it into one of four standard anatomical planes: **abdomen, brain, femur or thorax**. The model also returns a confidence score, and low-confidence predictions are flagged for human review or reacquisition. The system supports acquisition. It does not certify clinical image quality or replace trained personnel.
 
@@ -96,14 +96,31 @@ data/raw/
     └── Images/
 ```
 
+## Phase 1: Data Audit and Preprocessing Strategy
+
+The full strategy, with every decision and its justification, is in [`phase1_strategy/Phase1_Strategy_Report.pdf`](phase1_strategy/Phase1_Strategy_Report.pdf).
+
+Because this is an image dataset, the audit uses image-specific methods in place of tabular ones. It covers:
+
+- image dimensions, colour channels and intensity
+- file and label integrity
+- exact and near-duplicate detection
+- acquisition confounding (whether the country or machine can be predicted from the image)
+
+**Key findings**
+
+- **Duplicate images:** 108 of 450 African images (24%) belong to a duplicate pair, often filed under different patients and crossing the provided train/test split.
+- **Acquisition confounding:** image size, colour mode, logos and on-screen text identify the acquisition setting. A simple model predicts the country from 32×32 thumbnails with 93% accuracy, versus 56% for the plane.
+- **Class imbalance:** Ghana and Uganda contributed no thorax images. The imbalance ratio (largest class ÷ smallest class) is 1.67:1 for the target dataset and 4.35:1 for the source.
+
 ## Pipeline Summary
 
-*To be completed in Phase 2.*
+*To be completed in Phase 2. The planned steps are listed in Section 5 of the Phase 1 report.*
 
 ## Deliverables
 
 | Phase | Deliverable | Status |
 | --- | --- | --- |
-| 1 | `phase1_strategy/Phase1_Strategy_Report.pdf` | In progress |
+| 1 | `phase1_strategy/Phase1_Strategy_Report.pdf` | Submitted |
 | 2 | `phase2_implementation/notebooks/pipeline_execution.ipynb` | Not started |
 | 2 | `phase2_implementation/Phase2_Final_Report.pdf` | Not started |
