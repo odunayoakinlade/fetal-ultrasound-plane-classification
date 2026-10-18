@@ -25,8 +25,8 @@ The project uses two datasets with the same anatomical plane labels. The model i
 | Name | *Maternal fetal ultrasound planes from low-resource imaging settings in five African countries* (Sendra-Balcells et al., 2023) |
 | Source | <https://doi.org/10.5281/zenodo.7540447> |
 | Sample size (**N**) | 450 images |
-| Feature count (**P**) | 5 metadata columns (`Patient_num`, `Plane`, `Train`, `Center`, `Filename`), plus the ultrasound image for each row |
-| Target variable (**Y**) | `Plane`: Fetal abdomen, Fetal brain, Fetal femur or Fetal thorax |
+| Feature count (**P**) | 5 metadata columns (Patient_num, Plane, Train, Center, Filename), plus the ultrasound image for each row |
+| Target variable (**Y**) | Plane: Fetal abdomen, Fetal brain, Fetal femur or Fetal thorax |
 
 ### Source dataset (pretraining)
 
@@ -35,8 +35,8 @@ The project uses two datasets with the same anatomical plane labels. The model i
 | Name | *FETAL_PLANES_DB: Common maternal-fetal ultrasound images* (Burgos-Artizzu et al., 2020) |
 | Source | <https://doi.org/10.5281/zenodo.3904279> |
 | Sample size (**N**) | 12,400 images from 1,792 patients |
-| Feature count (**P**) | 7 metadata columns (`Image_name`, `Patient_num`, `Plane`, `Brain_plane`, `Operator`, `US_Machine`, `Train`), plus the ultrasound image for each row |
-| Target variable (**Y**) | `Plane`, limited to the same four planes as the target dataset |
+| Feature count (**P**) | 7 metadata columns (Image_name, Patient_num, Plane, Brain_plane, Operator, US_Machine, Train), plus the ultrasound image for each row |
+| Target variable (**Y**) | Plane, limited to the same four planes as the target dataset |
 
 ## Task Type
 
@@ -47,7 +47,7 @@ The project uses two datasets with the same anatomical plane labels. The model i
 ```
 fetal-ultrasound-plane-classification/
 ├── .gitignore                 # Excludes data binaries, caches, virtual envs, model weights
-├── requirements.txt           # Pinned package dependencies
+├── requirements.txt           # Package dependencies
 ├── README.md                  # This guide
 ├── data/
 │   ├── raw/                   # Original, unaltered datasets (not tracked in git)
@@ -96,22 +96,9 @@ data/raw/
     └── Images/
 ```
 
-## Phase 1: Data Audit and Preprocessing Strategy
+## Phase 1 Strategy
 
-The full strategy, with every decision and its justification, is in [`phase1_strategy/Phase1_Strategy_Report.pdf`](phase1_strategy/Phase1_Strategy_Report.pdf).
-
-Because this is an image dataset, the audit uses image-specific methods in place of tabular ones. It covers:
-
-- image dimensions, colour channels and intensity
-- file and label integrity
-- exact and near-duplicate detection
-- acquisition confounding (whether the country or machine can be predicted from the image)
-
-**Key findings**
-
-- **Duplicate images:** 108 of 450 African images (24%) belong to a duplicate pair, often filed under different patients and crossing the provided train/test split.
-- **Acquisition confounding:** image size, colour mode, logos and on-screen text identify the acquisition setting. A simple model predicts the country from 32×32 thumbnails with 93% accuracy, versus 56% for the plane.
-- **Class imbalance:** Ghana and Uganda contributed no thorax images. The imbalance ratio (largest class ÷ smallest class) is 1.67:1 for the target dataset and 4.35:1 for the source.
+The Phase 1 strategy is in [phase1_strategy/Phase1_Strategy_Report.pdf](phase1_strategy/Phase1_Strategy_Report.pdf).
 
 ## Pipeline Summary
 

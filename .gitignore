@@ -1,4 +1,4 @@
-# --- Data: keep folder structure, ignore dataset contents ---
+# Data
 data/raw/*
 data/processed/*
 !data/raw/.gitkeep
@@ -15,7 +15,7 @@ data/processed/*
 *.pkl
 *.joblib
 
-# --- Model weights / checkpoints ---
+# Model weights / checkpoints
 *.pt
 *.pth
 *.ckpt
@@ -23,28 +23,28 @@ data/processed/*
 models/
 checkpoints/
 
-# --- Python cache & build ---
+# Python cache & build
 __pycache__/
 *.py[cod]
 *.egg-info/
 build/
 dist/
 
-# --- Virtual environments ---
+# Virtual environments
 .venv/
 venv/
 env/
 .conda/
 
-# --- Jupyter ---
+# Jupyter
 .ipynb_checkpoints/
 
-# --- IDE / OS ---
+# IDE / OS
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-# --- Secrets ---
+# Secrets
 .env
 
