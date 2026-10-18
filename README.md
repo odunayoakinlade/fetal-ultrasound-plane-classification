@@ -116,11 +116,3 @@ Because this is an image dataset, the audit uses image-specific methods in place
 ## Pipeline Summary
 
 *To be completed in Phase 2. The planned steps are listed in Section 5 of the Phase 1 report.*
-
-## Deliverables
-
-| Phase | Deliverable | Status |
-| --- | --- | --- |
-| 1 | `phase1_strategy/Phase1_Strategy_Report.pdf` | Submitted |
-| 2 | `phase2_implementation/notebooks/pipeline_execution.ipynb` | Not started |
-| 2 | `phase2_implementation/Phase2_Final_Report.pdf` | Not started |
