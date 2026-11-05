@@ -1,6 +1,7 @@
 numpy>=2.0
 pandas>=2.1
 scipy>=1.11
+scikit-image>=0.22
 scikit-learn>=1.4
 statsmodels>=0.14
 matplotlib>=3.8
@@ -8,3 +9,5 @@ seaborn>=0.13
 pillow>=10.0
 jupyter>=1.0
 ipykernel>=6.29
+torch>=2.2
+torchvision>=0.17
