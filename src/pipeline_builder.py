@@ -6,11 +6,12 @@ so no statistics from validation or test data leak into preprocessing.
 
 import numpy as np
 from sklearn.compose import ColumnTransformer
+from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from src.transformers import (ExtremeTrimmer, FanCropper, FanMasker, GrayscaleLoader,
-                              ModelInputScaler, PadResizer)
+from src.transformers import (CollinearityDropper, ExtremeTrimmer, FanCropper, FanMasker,
+                              GrayscaleLoader, ModelInputScaler, PadResizer)
 
 
 def build_image_pipeline(size=224, include_model_scaling=False):
@@ -27,9 +28,22 @@ def build_image_pipeline(size=224, include_model_scaling=False):
     return Pipeline(steps)
 
 
-def build_feature_transformer(columns):
-    """Keeps the given measurement columns and standardises them; drops the rest."""
-    return ColumnTransformer([("scale", StandardScaler(), columns)], remainder="drop")
+def build_feature_transformer(columns, max_rho=0.85, max_vif=10, random_state=None):
+    """Measurement columns -> collinearity screening -> standardisation, in one ColumnTransformer.
+
+    Fit on the development set only: the dropper learns which columns to keep and the scaler
+    learns their mean and standard deviation.
+    """
+    measurement_pipeline = Pipeline([
+        ("drop_collinear", CollinearityDropper(max_rho=max_rho, max_vif=max_vif, random_state=random_state)),
+        ("scale", StandardScaler()),
+    ])
+    return ColumnTransformer([("measurements", measurement_pipeline, columns)], remainder="drop")
+
+
+def build_embedding_pca():
+    """Standardises embeddings and fits PCA; fit on the development set only."""
+    return Pipeline([("scale", StandardScaler()), ("pca", PCA())])
 
 
 def transform_in_batches(pipeline, items, batch_size=200):

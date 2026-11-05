@@ -1,8 +1,6 @@
 # AI-Assisted Fetal Ultrasound Plane Classification for Acquisition Support in Low-Resource Settings
 
-**Course:** 04-652 Artificial Intelligence System Design, Carnegie Mellon University Africa
 **Author:** Odunayo Wuraola Akinlade
-**Assignment 2:** Data Preprocessing (Phase 1: Strategy · Phase 2: Implementation)
 
 ---
 
@@ -53,18 +51,18 @@ fetal-ultrasound-plane-classification/
 │   ├── raw/                   # Original, unaltered datasets (not tracked in git)
 │   │   ├── african_planes/    #   Target dataset (fine-tuning)
 │   │   └── fetal_planes_db/   #   Source dataset (pretraining)
-│   └── processed/             # Cleaned, encoded and scaled features (not tracked in git)
+│   └── processed/             # Cleaned tables, splits and standardised images (not tracked in git)
 ├── phase1_strategy/
-│   └── Phase1_Strategy_Report.pdf
+│   └── Phase1_Strategy_Report.pdf     # Data audit and preprocessing strategy
 ├── phase2_implementation/
 │   ├── notebooks/
-│   │   └── pipeline_execution.ipynb
-│   └── Phase2_Final_Report.pdf
+│   │   └── pipeline_execution.ipynb   # End-to-end pipeline and diagnostics
+│   └── Phase2_Final_Report.pdf        # Implementation report and decision log
 ├── src/
 │   ├── __init__.py
-│   ├── transformers.py        # Custom scikit-learn transformers
-│   └── pipeline_builder.py    # ColumnTransformer / Pipeline definitions
-└── figures/                   # 300-DPI diagnostic plots (fig1_1 … fig5_1)
+│   ├── transformers.py        # Image functions and custom scikit-learn transformers
+│   └── pipeline_builder.py    # Pipeline and ColumnTransformer definitions
+└── figures/                   # 300-DPI diagnostic plots
 ```
 
 ## Reproducing the Environment
@@ -81,25 +79,38 @@ pip install -r requirements.txt
 
 The datasets are not committed to this repository. Together they are about 2 GB, which is over GitHub's size limits, and each one is distributed under its own Zenodo licence. To set them up:
 
-1. Download the African dataset from <https://doi.org/10.5281/zenodo.7540447> and extract it into `data/raw/african_planes/`.
-2. Download FETAL_PLANES_DB from <https://doi.org/10.5281/zenodo.3904279> (about 2 GB) and extract it into `data/raw/fetal_planes_db/`.
+1. Download the African dataset from <https://doi.org/10.5281/zenodo.7540447>, extract it into `data/raw/african_planes/`, and rename its CSV file to `african_planes.csv`.
+2. Download FETAL_PLANES_DB from <https://doi.org/10.5281/zenodo.3904279> (about 2 GB), extract it into `data/raw/fetal_planes_db/`, and rename its CSV file to `fetal_planes_data.csv`.
 
 The resulting layout should be:
 
 ```
 data/raw/
 ├── african_planes/
-│   ├── African_planes_database.csv
+│   ├── african_planes.csv
 │   └── Algeria/  Egypt/  Ghana/  Malawi/  Uganda/
 └── fetal_planes_db/
-    ├── FETAL_PLANES_DB_data.csv
+    ├── fetal_planes_data.csv
     └── Images/
 ```
 
-## Phase 1 Strategy
-
-The Phase 1 strategy is in [phase1_strategy/Phase1_Strategy_Report.pdf](phase1_strategy/Phase1_Strategy_Report.pdf).
+Then open `phase2_implementation/notebooks/pipeline_execution.ipynb` and run all cells. A full run takes several minutes, mostly to standardise the ~6,000 source images, and downloads the ResNet18 weights (about 45 MB) the first time.
 
 ## Pipeline Summary
 
-*To be completed in Phase 2. The planned steps are listed in Section 5 of the Phase 1 report.*
+| Stage | What it does | Result |
+| --- | --- | --- |
+| Duplicate removal | MD5 and 64-bit perceptual hashes; images within a Hamming distance of 4 are treated as copies, and conflicting-label copies are dropped | Target 450 → 396 images; source 6,561 → 6,059 |
+| Split | `StratifiedGroupKFold` by patient, stratified by plane | Target 321 development / 75 test; source 5,220 training / 839 validation; no patient in two partitions |
+| Outlier check | 1.5 × IQR on brightness inside the fan, per site, fitted on development data | 9 of 321 flagged; kept, with per-image percentile clipping as treatment |
+| Image pipeline | Grayscale → fan mask → crop → clip to 1st–99th percentile → pad and resize | 224 × 224 images; 3 × 224 × 224 model input with ImageNet scaling |
+| Measurements | Eight image measurements; Spearman \|ρ\| ≥ 0.85 and VIF > 10 screening, then scaling, in one `ColumnTransformer` | 8 → 5 measurements, all VIF < 3 |
+| Embeddings | ResNet18 embeddings, standardised, then PCA | 512 → 139 components for 95% of variance |
+| Checks | Leakage and format checks | 12 of 12 pass |
+
+Everything that learns from data is fitted on the development (or training) partition only. The image steps learn nothing, so the same pipeline is applied unchanged to every partition.
+
+## Documentation
+
+- [Data audit and preprocessing strategy](phase1_strategy/Phase1_Strategy_Report.pdf)
+- [Implementation report and decision log](phase2_implementation/Phase2_Final_Report.pdf)

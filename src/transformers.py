@@ -15,6 +15,7 @@ from scipy.fft import dctn
 from scipy.stats import spearmanr
 from skimage.morphology import convex_hull_image
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.feature_selection import mutual_info_classif
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 IMAGENET_MEAN = np.array([0.485, 0.456, 0.406])
@@ -177,6 +178,31 @@ def drop_collinear(measurements, mi, max_rho=0.85, max_vif=10):
         weakest = mi[too_high.index].idxmin()
         kept.remove(weakest)
         dropped[weakest] = f"VIF = {vif[weakest]:.1f}"
+
+
+class CollinearityDropper(TransformerMixin, BaseEstimator):
+    """Learns in fit which measurements to keep (see drop_collinear) and selects them in transform.
+
+    Mutual information with the label is computed inside fit, so the decision uses only the
+    data the transformer is fitted on.
+    """
+
+    def __init__(self, max_rho=0.85, max_vif=10, random_state=None):
+        self.max_rho = max_rho
+        self.max_vif = max_vif
+        self.random_state = random_state
+
+    def fit(self, X, y):
+        X = pd.DataFrame(X)
+        self.mi_ = pd.Series(mutual_info_classif(X, y, random_state=self.random_state), index=X.columns)
+        self.kept_, self.dropped_ = drop_collinear(X, self.mi_, self.max_rho, self.max_vif)
+        return self
+
+    def transform(self, X):
+        return pd.DataFrame(X)[self.kept_]
+
+    def get_feature_names_out(self, input_features=None):
+        return np.array(self.kept_, dtype=object)
 
 
 # ---------------------------------------------------------------------------
