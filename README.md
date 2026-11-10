@@ -131,6 +131,8 @@ A ResNet18 pretrained on ImageNet is fine-tuned on the Spanish source images and
 
 The test set and cross-validation results describe performance at the five sites the model was trained on. On a site it has not seen, performance can be lower: when Ghana was held out, accuracy on Ghana fell to 0.807, with all errors predicted as thorax, a plane Ghana did not collect. A small set of labelled images from a new site should therefore be used to check the model before it is used there.
 
+**Confidence threshold.** Predictions with a highest probability below 0.84 are flagged for human review or reacquisition. The threshold was chosen on the development data as the highest value that flags no more than 10% of images. On the test set it flagged 8 of 75 images, including both errors, and all 67 accepted images were correct. On unseen sites (leave-one-site-out) it flagged 10.3% of images and caught 12 of 17 errors, raising accuracy on the accepted images from 0.947 to 0.983.
+
 ## Documentation
 
 - [Data audit and preprocessing strategy](phase1_strategy/Phase1_Strategy_Report.pdf)
