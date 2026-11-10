@@ -52,17 +52,22 @@ fetal-ultrasound-plane-classification/
 │   │   ├── african_planes/    #   Target dataset (fine-tuning)
 │   │   └── fetal_planes_db/   #   Source dataset (pretraining)
 │   └── processed/             # Cleaned tables, splits and standardised images (not tracked in git)
+├── models/                    # Trained model weights (not tracked in git)
 ├── phase1_strategy/
 │   └── Phase1_Strategy_Report.pdf     # Data audit and preprocessing strategy
 ├── phase2_implementation/
 │   ├── notebooks/
 │   │   └── pipeline_execution.ipynb   # End-to-end pipeline and diagnostics
 │   └── Phase2_Final_Report.pdf        # Implementation report and decision log
+├── phase3_modelling/
+│   └── notebooks/
+│       └── model_training.ipynb       # Training, fine-tuning and evaluation
 ├── src/
 │   ├── __init__.py
 │   ├── transformers.py        # Image functions and custom scikit-learn transformers
-│   └── pipeline_builder.py    # Pipeline and ColumnTransformer definitions
-└── figures/                   # 300-DPI diagnostic plots
+│   ├── pipeline_builder.py    # Pipeline and ColumnTransformer definitions
+│   └── training.py            # Model, training loop and evaluation helpers
+└── figures/                   # 300-DPI diagnostic and evaluation plots
 ```
 
 ## Reproducing the Environment
@@ -96,6 +101,8 @@ data/raw/
 
 Then open `phase2_implementation/notebooks/pipeline_execution.ipynb` and run all cells. A full run takes several minutes, mostly to standardise the ~6,000 source images, and downloads the ResNet18 weights (about 45 MB) the first time.
 
+To train and evaluate the classifier, run `phase3_modelling/notebooks/model_training.ipynb` afterwards. It uses the processed images saved by the pipeline notebook and saves the trained weights to `models/`. A GPU (CUDA or Apple MPS) is used when available.
+
 ## Pipeline Summary
 
 | Stage | What it does | Result |
@@ -110,7 +117,22 @@ Then open `phase2_implementation/notebooks/pipeline_execution.ipynb` and run all
 
 Everything that learns from data is fitted on the development (or training) partition only. The image steps learn nothing, so the same pipeline is applied unchanged to every partition.
 
+## Model Results
+
+A ResNet18 pretrained on ImageNet is fine-tuned on the Spanish source images and then on the African development images, with augmentation and class weights. Accuracy and macro-F1 (the F1 score averaged equally across the four planes):
+
+| Evaluation | Images | Accuracy | Macro-F1 |
+| --- | --- | --- | --- |
+| Spanish model on Spanish validation | 839 | 0.996 | 0.996 |
+| Spanish model on African development (no African training) | 321 | 0.953 | 0.948 |
+| African fine-tuning, 5-fold patient-grouped cross-validation | 321 | 0.971 ± 0.014 | 0.967 ± 0.017 |
+| African fine-tuning, leave-one-site-out | 321 | 0.947 | 0.938 |
+| **Final model on the held-out African test set** | **75** | **0.973** (95% CI 0.933–1.000) | **0.969** (95% CI 0.925–1.000) |
+
+The test set and cross-validation results describe performance at the five sites the model was trained on. On a site it has not seen, performance can be lower: when Ghana was held out, accuracy on Ghana fell to 0.807, with all errors predicted as thorax, a plane Ghana did not collect. A small set of labelled images from a new site should therefore be used to check the model before it is used there.
+
 ## Documentation
 
 - [Data audit and preprocessing strategy](phase1_strategy/Phase1_Strategy_Report.pdf)
 - [Implementation report and decision log](phase2_implementation/Phase2_Final_Report.pdf)
+- [Model training and evaluation notebook](phase3_modelling/notebooks/model_training.ipynb)
