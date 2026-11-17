@@ -61,7 +61,10 @@ fetal-ultrasound-plane-classification/
 │   └── Phase2_Final_Report.pdf        # Implementation report and decision log
 ├── phase3_modelling/
 │   └── notebooks/
-│       └── model_training.ipynb       # Training, fine-tuning and evaluation
+│       ├── model_training.ipynb            # ResNet18 baseline, fine-tuning and evaluation
+│       ├── preprocessing_comparison.ipynb  # Our pipeline against plain resizing
+│       ├── model_selection.ipynb           # Choice of network
+│       └── efficientnet_training.ipynb     # Fine-tuning and evaluation of the chosen network
 ├── src/
 │   ├── __init__.py
 │   ├── transformers.py        # Image functions and custom scikit-learn transformers
@@ -101,7 +104,7 @@ data/raw/
 
 Then open `phase2_implementation/notebooks/pipeline_execution.ipynb` and run all cells. A full run takes several minutes, mostly to standardise the ~6,000 source images, and downloads the ResNet18 weights (about 45 MB) the first time.
 
-To train and evaluate the classifier, run `phase3_modelling/notebooks/model_training.ipynb` afterwards. It uses the processed images saved by the pipeline notebook and saves the trained weights to `models/`. A GPU (CUDA or Apple MPS) is used when available.
+To train and evaluate the classifiers, run the notebooks in `phase3_modelling/notebooks/` afterwards, in this order: `model_training.ipynb`, `preprocessing_comparison.ipynb`, `model_selection.ipynb` and `efficientnet_training.ipynb`. They use the processed images saved by the pipeline notebook and save the trained weights to `models/`. A GPU (CUDA or Apple MPS) is used when available.
 
 ## Pipeline Summary
 
@@ -117,7 +120,24 @@ To train and evaluate the classifier, run `phase3_modelling/notebooks/model_trai
 
 Everything that learns from data is fitted on the development (or training) partition only. The image steps learn nothing, so the same pipeline is applied unchanged to every partition.
 
-## Model Results
+## Model Selection
+
+Four ImageNet-pretrained networks were trained on the Spanish images with identical settings and compared on the African development images before any African training. The rule, fixed before training, takes the network with the highest African macro-F1 as the reference and chooses the network with the fewest parameters among those not significantly different from it (McNemar's exact test, p ≥ 0.05).
+
+| Network | Parameters | Spanish validation macro-F1 | African development macro-F1 (no African training) | McNemar p vs ResNet18 |
+| --- | --- | --- | --- | --- |
+| YOLO11n-cls | 1.5M | 0.995 | 0.862 | < 0.001 |
+| **EfficientNet-B0** | **4.0M** | **0.992** | **0.934** | **0.54** |
+| MobileNetV3-Large | 4.2M | 0.991 | 0.866 | < 0.001 |
+| ResNet18 | 11.2M | 0.996 | 0.948 | reference |
+
+**EfficientNet-B0 was chosen.** DenseNet-169 was also considered but exceeded the 8 GB memory of the training laptop.
+
+After fine-tuning on the African development images (5-fold patient-grouped cross-validation), EfficientNet-B0 and ResNet18 were level: accuracy 0.975 ± 0.009 against 0.971 ± 0.014 (313 against 312 of 321 images correct). On unseen sites (leave-one-site-out), however, EfficientNet-B0 generalised less well: accuracy 0.897 against 0.947, with Ghana at 0.684 and 25 of its 33 errors predicted as thorax. The comparison before African training therefore did not predict performance at a new site. Each network was trained with one seed.
+
+## Model Results (ResNet18)
+
+The results below are for the ResNet18 model, which was developed first and evaluated end to end. The test set and confidence threshold evaluations for EfficientNet-B0 have not yet been run.
 
 A ResNet18 pretrained on ImageNet is fine-tuned on the Spanish source images and then on the African development images, with augmentation and class weights. Accuracy and macro-F1 (the F1 score averaged equally across the four planes):
 
@@ -137,4 +157,7 @@ The test set and cross-validation results describe performance at the five sites
 
 - [Data audit and preprocessing strategy](phase1_strategy/Phase1_Strategy_Report.pdf)
 - [Implementation report and decision log](phase2_implementation/Phase2_Final_Report.pdf)
-- [Model training and evaluation notebook](phase3_modelling/notebooks/model_training.ipynb)
+- [Model training and evaluation notebook (ResNet18)](phase3_modelling/notebooks/model_training.ipynb)
+- [Preprocessing comparison notebook](phase3_modelling/notebooks/preprocessing_comparison.ipynb)
+- [Model selection notebook](phase3_modelling/notebooks/model_selection.ipynb)
+- [EfficientNet-B0 training notebook](phase3_modelling/notebooks/efficientnet_training.ipynb)
