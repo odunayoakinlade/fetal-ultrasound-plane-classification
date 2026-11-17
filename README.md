@@ -139,7 +139,7 @@ After fine-tuning on the African development images (5-fold patient-grouped cros
 
 ## Model Results (ResNet18)
 
-The results below are for the ResNet18 model, which was developed first and evaluated end to end. A confidence threshold for EfficientNet-B0 has not yet been chosen.
+The results below are for the ResNet18 model, which was developed first and evaluated end to end. For EfficientNet-B0, the same threshold rule also gives 0.84: on the test set it flagged 8 of 75 images, including all 4 errors, and all 67 accepted images were correct; on unseen sites it caught 24 of 33 errors, leaving 9 confident errors (against 5 for ResNet18).
 
 A ResNet18 pretrained on ImageNet is fine-tuned on the Spanish source images and then on the African development images, with augmentation and class weights. Accuracy and macro-F1 (the F1 score averaged equally across the four planes):
 
