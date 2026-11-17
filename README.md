@@ -52,7 +52,8 @@ fetal-ultrasound-plane-classification/
 │   │   ├── african_planes/    #   Target dataset (fine-tuning)
 │   │   └── fetal_planes_db/   #   Source dataset (pretraining)
 │   └── processed/             # Cleaned tables, splits and standardised images (not tracked in git)
-├── models/                    # Trained model weights (not tracked in git)
+├── models/                    # Trained model weights; only the final EfficientNet-B0 is tracked
+│   └── african_finetuned_efficientnet_b0.pt   # Final model (16 MB)
 ├── phase1_strategy/
 │   └── Phase1_Strategy_Report.pdf     # Data audit and preprocessing strategy
 ├── phase2_implementation/
