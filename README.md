@@ -133,11 +133,11 @@ Four ImageNet-pretrained networks were trained on the Spanish images with identi
 
 **EfficientNet-B0 was chosen.** DenseNet-169 was also considered but exceeded the 8 GB memory of the training laptop.
 
-After fine-tuning on the African development images (5-fold patient-grouped cross-validation), EfficientNet-B0 and ResNet18 were level: accuracy 0.975 ± 0.009 against 0.971 ± 0.014 (313 against 312 of 321 images correct). On unseen sites (leave-one-site-out), however, EfficientNet-B0 generalised less well: accuracy 0.897 against 0.947, with Ghana at 0.684 and 25 of its 33 errors predicted as thorax. The comparison before African training therefore did not predict performance at a new site. Each network was trained with one seed.
+After fine-tuning on the African development images (5-fold patient-grouped cross-validation), EfficientNet-B0 and ResNet18 were level: accuracy 0.975 ± 0.009 against 0.971 ± 0.014 (313 against 312 of 321 images correct). On unseen sites (leave-one-site-out), however, EfficientNet-B0 generalised less well: accuracy 0.897 against 0.947, with Ghana at 0.684 and 25 of its 33 errors predicted as thorax. On the held-out African test set, the final EfficientNet-B0 classified 71 of 75 images correctly (accuracy 0.947, 95% CI 0.897–0.987; macro-F1 0.939), against 73 of 75 for ResNet18; with 75 images the two cannot be separated. The comparison before African training therefore did not predict performance after fine-tuning or at a new site. Each network was trained with one seed.
 
 ## Model Results (ResNet18)
 
-The results below are for the ResNet18 model, which was developed first and evaluated end to end. The test set and confidence threshold evaluations for EfficientNet-B0 have not yet been run.
+The results below are for the ResNet18 model, which was developed first and evaluated end to end. A confidence threshold for EfficientNet-B0 has not yet been chosen.
 
 A ResNet18 pretrained on ImageNet is fine-tuned on the Spanish source images and then on the African development images, with augmentation and class weights. Accuracy and macro-F1 (the F1 score averaged equally across the four planes):
 
